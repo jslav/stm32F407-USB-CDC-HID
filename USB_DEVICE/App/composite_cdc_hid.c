@@ -1,46 +1,4 @@
 /**
-  ******************************************************************************
-  * @file    usbd_cdc.c
-  * @author  MCD Application Team
-  * @brief   This file provides the high layer firmware functions to manage the
-  *          following functionalities of the USB CDC Class:
-  *           - Initialization and Configuration of high and low layer
-  *           - Enumeration as CDC Device (and enumeration for each implemented memory interface)
-  *           - OUT/IN data transfer
-  *           - Command IN transfer (class requests management)
-  *           - Error management
-  *
-  *  @verbatim
-  *
-  *          ===================================================================
-  *                                CDC Class Driver Description
-  *          ===================================================================
-  *           This driver manages the "Universal Serial Bus Class Definitions for Communications Devices
-  *           Revision 1.2 November 16, 2007" and the sub-protocol specification of "Universal Serial Bus
-  *           Communications Class Subclass Specification for PSTN Devices Revision 1.2 February 9, 2007"
-  *           This driver implements the following aspects of the specification:
-  *             - Device descriptor management
-  *             - Configuration descriptor management
-  *             - Enumeration as CDC device with 2 data endpoints (IN and OUT) and 1 command endpoint (IN)
-  *             - Requests management (as described in section 6.2 in specification)
-  *             - Abstract Control Model compliant
-  *             - Union Functional collection (using 1 IN endpoint for control)
-  *             - Data interface class
-  *
-  *           These aspects may be enriched or modified for a specific user application.
-  *
-  *            This driver doesn't implement the following aspects of the specification
-  *            (but it is possible to manage these features with some modifications on this driver):
-  *             - Any class-specific aspect relative to communication classes should be managed by user application.
-  *             - All communication classes other than PSTN are not managed
-  *
-  *  @endverbatim
-  *
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2015 STMicroelectronics.
-  * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under Ultimate Liberty license
   * SLA0044, the "License"; You may not use this file except in compliance with
@@ -50,54 +8,11 @@
   ******************************************************************************
   */
 
-/* BSPDependencies
-- "stm32xxxxx_{eval}{discovery}{nucleo_144}.c"
-- "stm32xxxxx_{eval}{discovery}_io.c"
-EndBSPDependencies */
-
 /* Includes ------------------------------------------------------------------*/
 #include <composite_cdc_hid.h>
 #include "usbd_ctlreq.h"
 
 
-/** @addtogroup STM32_USB_DEVICE_LIBRARY
-  * @{
-  */
-
-
-/** @defgroup USBD_CDC
-  * @brief usbd core module
-  * @{
-  */
-
-/** @defgroup USBD_CDC_Private_TypesDefinitions
-  * @{
-  */
-/**
-  * @}
-  */
-
-
-/** @defgroup USBD_CDC_Private_Defines
-  * @{
-  */
-/**
-  * @}
-  */
-
-
-/** @defgroup USBD_CDC_Private_Macros
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-
-/** @defgroup USBD_CDC_Private_FunctionPrototypes
-  * @{
-  */
 #define IFC //static
 IFC int8_t CDC_Init_FS(void);
 IFC int8_t CDC_DeInit_FS(void);
@@ -106,7 +21,7 @@ IFC int8_t CDC_Receive_FS(uint8_t* pbuf, uint32_t *Len);
 IFC int8_t CDC_TransmitCplt_FS(uint8_t *pbuf, uint32_t *Len, uint8_t epnum);
 
 /* USB Standard Device Descriptor */
-__ALIGN_BEGIN static uint8_t USBD_CDC_DeviceQualifierDesc[USB_LEN_DEV_QUALIFIER_DESC] __ALIGN_END =
+__ALIGN_BEGIN static uint8_t COMPOSITE_CDC_HID_DeviceQualifierDesc[USB_LEN_DEV_QUALIFIER_DESC] __ALIGN_END =
 {
   USB_LEN_DEV_QUALIFIER_DESC,
   USB_DESC_TYPE_DEVICE_QUALIFIER,
@@ -120,13 +35,6 @@ __ALIGN_BEGIN static uint8_t USBD_CDC_DeviceQualifierDesc[USB_LEN_DEV_QUALIFIER_
   0x00,
 };
 
-/**
-  * @}
-  */
-
-/** @defgroup USBD_CDC_Private_Variables
-  * @{
-  */
 
 
 
@@ -361,7 +269,6 @@ __ALIGN_BEGIN static uint8_t COMPOSITE_CDC_HID_CfgFSDesc[USB_COMPOSITE_CONFIG_DE
 };
 
 
-
 /** @defgroup USBD_CDC_Private_Functions
   * @{
   */
@@ -450,6 +357,11 @@ static uint8_t USBD_CDC_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
   return (uint8_t)USBD_OK;
 }
 
+static uint8_t COMPOSITE_CDC_HID_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
+{
+	return USBD_CDC_Init(pdev,cfgidx);
+}
+
 /**
   * @brief  USBD_CDC_Init
   *         DeInitialize the CDC layer
@@ -486,6 +398,10 @@ static uint8_t USBD_CDC_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
   return ret;
 }
 
+static uint8_t COMPOSITE_CDC_HID_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
+{
+	return USBD_CDC_DeInit(pdev, cfgidx);
+}
 /**
   * @brief  USBD_CDC_Setup
   *         Handle the CDC specific requests
@@ -580,6 +496,11 @@ static uint8_t USBD_CDC_Setup(USBD_HandleTypeDef *pdev,
   return (uint8_t)ret;
 }
 
+static uint8_t COMPOSITE_CDC_HID_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
+{
+	return USBD_CDC_Setup(pdev, req);
+}
+
 /**
   * @brief  USBD_CDC_DataIn
   *         Data sent on non-control IN endpoint
@@ -617,6 +538,11 @@ static uint8_t USBD_CDC_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum)
   return (uint8_t)USBD_OK;
 }
 
+static uint8_t COMPOSITE_CDC_HID_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum)
+{
+	return USBD_CDC_DataIn(pdev, epnum);
+}
+
 /**
   * @brief  USBD_CDC_DataOut
   *         Data received on non-control Out endpoint
@@ -644,6 +570,11 @@ static uint8_t USBD_CDC_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum)
   return (uint8_t)USBD_OK;
 }
 
+static uint8_t COMPOSITE_CDC_HID_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum)
+{
+	return USBD_CDC_DataOut(pdev, epnum);
+}
+
 /**
   * @brief  USBD_CDC_EP0_RxReady
   *         Handle EP0 Rx Ready event
@@ -664,6 +595,11 @@ static uint8_t USBD_CDC_EP0_RxReady(USBD_HandleTypeDef *pdev)
   return (uint8_t)USBD_OK;
 }
 
+static uint8_t COMPOSITE_CDC_HID_EP0_RxReady(USBD_HandleTypeDef *pdev)
+{
+	return USBD_CDC_EP0_RxReady(pdev);
+}
+
 /**
   * @brief  USBD_CDC_GetFSCfgDesc
   *         Return configuration descriptor
@@ -671,7 +607,7 @@ static uint8_t USBD_CDC_EP0_RxReady(USBD_HandleTypeDef *pdev)
   * @param  length : pointer data length
   * @retval pointer to descriptor buffer
   */
-static uint8_t *USBD_CDC_GetFSCfgDesc(uint16_t *length)
+static uint8_t *COMPOSITE_CDC_HID_GetFSCfgDesc(uint16_t *length)
 {
   *length = (uint16_t)sizeof(COMPOSITE_CDC_HID_CfgFSDesc);
 
@@ -684,11 +620,11 @@ static uint8_t *USBD_CDC_GetFSCfgDesc(uint16_t *length)
 * @param  length : pointer data length
 * @retval pointer to descriptor buffer
 */
-uint8_t *USBD_CDC_GetDeviceQualifierDescriptor(uint16_t *length)
+uint8_t *COMPOSITE_CDC_HID_GetDeviceQualifierDescriptor(uint16_t *length)
 {
-  *length = (uint16_t)sizeof(USBD_CDC_DeviceQualifierDesc);
+  *length = (uint16_t)sizeof(COMPOSITE_CDC_HID_DeviceQualifierDesc);
 
-  return USBD_CDC_DeviceQualifierDesc;
+  return COMPOSITE_CDC_HID_DeviceQualifierDesc;
 }
 
 
@@ -795,18 +731,18 @@ uint8_t USBD_CDC_ReceivePacket(USBD_HandleTypeDef *pdev)
 /* CDC interface class callbacks structure */
 USBD_ClassTypeDef  USBD_CDC =
 {
-  USBD_CDC_Init,
-  USBD_CDC_DeInit,
-  USBD_CDC_Setup,
+  COMPOSITE_CDC_HID_Init,
+  COMPOSITE_CDC_HID_DeInit,
+  COMPOSITE_CDC_HID_Setup,
   NULL,                 /* EP0_TxSent, */
-  USBD_CDC_EP0_RxReady,
-  USBD_CDC_DataIn,
-  USBD_CDC_DataOut,
+  COMPOSITE_CDC_HID_EP0_RxReady,
+  COMPOSITE_CDC_HID_DataIn,
+  COMPOSITE_CDC_HID_DataOut,
   NULL,
   NULL,
   NULL,
-  USBD_CDC_GetFSCfgDesc,//USBD_CDC_GetHSCfgDesc,
-  USBD_CDC_GetFSCfgDesc,//USBD_CDC_GetFSCfgDesc,
-  USBD_CDC_GetFSCfgDesc,//USBD_CDC_GetOtherSpeedCfgDesc,
-  USBD_CDC_GetDeviceQualifierDescriptor,
+  COMPOSITE_CDC_HID_GetFSCfgDesc,//USBD_CDC_GetHSCfgDesc,
+  COMPOSITE_CDC_HID_GetFSCfgDesc,//USBD_CDC_GetFSCfgDesc,
+  COMPOSITE_CDC_HID_GetFSCfgDesc,//USBD_CDC_GetOtherSpeedCfgDesc,
+  COMPOSITE_CDC_HID_GetDeviceQualifierDescriptor,
 };
