@@ -729,7 +729,7 @@ uint8_t USBD_CDC_ReceivePacket(USBD_HandleTypeDef *pdev)
 
 
 /* CDC interface class callbacks structure */
-USBD_ClassTypeDef  USBD_CDC =
+USBD_ClassTypeDef  USBD_COMPOSITE_CDC_HID =
 {
   COMPOSITE_CDC_HID_Init,
   COMPOSITE_CDC_HID_DeInit,
