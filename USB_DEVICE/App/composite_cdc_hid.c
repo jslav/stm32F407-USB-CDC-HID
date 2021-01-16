@@ -14,6 +14,8 @@
 #include "usbd_custom_hid_if.h"
 #include "usbd_ctlreq.h"
 
+#include "composite_internal.h"
+
 
 #define IFC //static
 IFC int8_t CDC_Init_FS(void);
@@ -271,11 +273,6 @@ __ALIGN_BEGIN static uint8_t COMPOSITE_CDC_HID_CfgFSDesc[USB_COMPOSITE_CONFIG_DE
 };
 
 // ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
-struct composite_CDC_HID_Handle
-{
-	USBD_CDC_HandleTypeDef cdc;
-	USBD_CUSTOM_HID_HandleTypeDef chid;
-};
 
 /**
   * @brief  USBD_CDC_Init
@@ -287,17 +284,13 @@ struct composite_CDC_HID_Handle
 static uint8_t USBD_CDC_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 {
   UNUSED(cfgidx);
-  USBD_CDC_HandleTypeDef *hcdc;
 
-  hcdc = USBD_malloc(sizeof(USBD_CDC_HandleTypeDef));
-
-  if (hcdc == NULL)
+  if (pdev->pClassData == NULL)
   {
-    pdev->pClassData = NULL;
     return (uint8_t)USBD_EMEM;
   }
 
-  pdev->pClassData = (void *)hcdc;
+  USBD_CDC_HandleTypeDef *hcdc = &((struct composite_CDC_HID_Handle*) pdev->pClassData)->cdc;
 
   if (pdev->dev_speed == USBD_SPEED_HIGH)
   {
@@ -361,9 +354,25 @@ static uint8_t USBD_CDC_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
   return (uint8_t)USBD_OK;
 }
 
+
 static uint8_t COMPOSITE_CDC_HID_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 {
+	struct composite_HID_VCP_Handle *pCtxt;
+
+	pCtxt = USBD_malloc(sizeof(struct composite_CDC_HID_Handle));
+	if (pCtxt == NULL)
+	{
+	    pdev->pClassData = NULL;
+	    return (uint8_t)USBD_EMEM;
+	}
+
+	pdev->pClassData = (void *)pCtxt;
 	return USBD_CDC_Init(pdev,cfgidx);
+
+//	USBD_CDC_Init(pdev,cfgidx);
+//	USBD_CUSTOM_HID_Init(pdev,cfgidx);
+//	return USBD_OK;
+
 }
 
 /**
@@ -392,19 +401,18 @@ static uint8_t USBD_CDC_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
   pdev->ep_in[CDC_CMD_EP & 0xFU].bInterval = 0U;
 
   /* DeInit  physical Interface components */
-//  if (pdev->pClassData != NULL)
-//  {
-	  CDC_DeInit_FS();//((USBD_CDC_ItfTypeDef *)pdev->pUserData)->DeInit();
-//    (void)USBD_free(pdev->pClassData);
-//    pdev->pClassData = NULL;
-//  }
+  CDC_DeInit_FS();//((USBD_CDC_ItfTypeDef *)pdev->pUserData)->DeInit();
 
   return ret;
 }
 
 static uint8_t COMPOSITE_CDC_HID_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 {
-	return USBD_CDC_DeInit(pdev, cfgidx);
+//	USBD_CUSTOM_HID_DeInit(pdev,cfgidx);
+	USBD_CDC_DeInit(pdev,cfgidx);
+	USBD_free(pdev->pClassData);
+    pdev->pClassData = NULL;
+	return USBD_OK;
 }
 /**
   * @brief  USBD_CDC_Setup
@@ -416,7 +424,7 @@ static uint8_t COMPOSITE_CDC_HID_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx
 static uint8_t USBD_CDC_Setup(USBD_HandleTypeDef *pdev,
                               USBD_SetupReqTypedef *req)
 {
-  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef *)pdev->pClassData;
+  USBD_CDC_HandleTypeDef *hcdc = &((struct composite_CDC_HID_Handle*) pdev->pClassData)->cdc;
   uint8_t ifalt = 0U;
   uint16_t status_info = 0U;
   USBD_StatusTypeDef ret = USBD_OK;
@@ -514,7 +522,6 @@ static uint8_t COMPOSITE_CDC_HID_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTy
   */
 static uint8_t USBD_CDC_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-  USBD_CDC_HandleTypeDef *hcdc;
   PCD_HandleTypeDef *hpcd = pdev->pData;
 
   if (pdev->pClassData == NULL)
@@ -522,7 +529,7 @@ static uint8_t USBD_CDC_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum)
     return (uint8_t)USBD_FAIL;
   }
 
-  hcdc = (USBD_CDC_HandleTypeDef *)pdev->pClassData;
+  USBD_CDC_HandleTypeDef *hcdc = &((struct composite_CDC_HID_Handle*) pdev->pClassData)->cdc;
 
   if ((pdev->ep_in[epnum].total_length > 0U) &&
       ((pdev->ep_in[epnum].total_length % hpcd->IN_ep[epnum].maxpacket) == 0U))
@@ -556,12 +563,12 @@ static uint8_t COMPOSITE_CDC_HID_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum)
   */
 static uint8_t USBD_CDC_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef *)pdev->pClassData;
-
   if (pdev->pClassData == NULL)
   {
     return (uint8_t)USBD_FAIL;
   }
+
+  USBD_CDC_HandleTypeDef *hcdc = &((struct composite_CDC_HID_Handle*) pdev->pClassData)->cdc;
 
   /* Get the received data length */
   hcdc->RxLength = USBD_LL_GetRxDataSize(pdev, epnum);
@@ -587,7 +594,12 @@ static uint8_t COMPOSITE_CDC_HID_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum
   */
 static uint8_t USBD_CDC_EP0_RxReady(USBD_HandleTypeDef *pdev)
 {
-  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef *)pdev->pClassData;
+  if (pdev->pClassData == NULL)
+  {
+    return (uint8_t)USBD_FAIL;
+  }
+
+  USBD_CDC_HandleTypeDef *hcdc = &((struct composite_CDC_HID_Handle*) pdev->pClassData)->cdc;
 
   if (hcdc->CmdOpCode != 0xFFU)
   {
@@ -641,7 +653,12 @@ uint8_t *COMPOSITE_CDC_HID_GetDeviceQualifierDescriptor(uint16_t *length)
 uint8_t USBD_CDC_SetTxBuffer(USBD_HandleTypeDef *pdev,
                              uint8_t *pbuff, uint32_t length)
 {
-  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef *)pdev->pClassData;
+  if (pdev->pClassData == NULL)
+  {
+    return (uint8_t)USBD_FAIL;
+  }
+
+  USBD_CDC_HandleTypeDef *hcdc = &((struct composite_CDC_HID_Handle*) pdev->pClassData)->cdc;
 
   hcdc->TxBuffer = pbuff;
   hcdc->TxLength = length;
@@ -658,7 +675,12 @@ uint8_t USBD_CDC_SetTxBuffer(USBD_HandleTypeDef *pdev,
   */
 uint8_t USBD_CDC_SetRxBuffer(USBD_HandleTypeDef *pdev, uint8_t *pbuff)
 {
-  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef *)pdev->pClassData;
+  if (pdev->pClassData == NULL)
+  {
+    return (uint8_t)USBD_FAIL;
+  }
+
+  USBD_CDC_HandleTypeDef *hcdc = &((struct composite_CDC_HID_Handle*) pdev->pClassData)->cdc;
 
   hcdc->RxBuffer = pbuff;
 
@@ -673,13 +695,14 @@ uint8_t USBD_CDC_SetRxBuffer(USBD_HandleTypeDef *pdev, uint8_t *pbuff)
   */
 uint8_t USBD_CDC_TransmitPacket(USBD_HandleTypeDef *pdev)
 {
-  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef *)pdev->pClassData;
-  USBD_StatusTypeDef ret = USBD_BUSY;
-
   if (pdev->pClassData == NULL)
   {
     return (uint8_t)USBD_FAIL;
   }
+
+  USBD_CDC_HandleTypeDef *hcdc = &((struct composite_CDC_HID_Handle*) pdev->pClassData)->cdc;
+  USBD_StatusTypeDef ret = USBD_BUSY;
+
 
   if (hcdc->TxState == 0U)
   {
@@ -707,12 +730,11 @@ uint8_t USBD_CDC_TransmitPacket(USBD_HandleTypeDef *pdev)
   */
 uint8_t USBD_CDC_ReceivePacket(USBD_HandleTypeDef *pdev)
 {
-  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef *)pdev->pClassData;
-
   if (pdev->pClassData == NULL)
   {
     return (uint8_t)USBD_FAIL;
   }
+  USBD_CDC_HandleTypeDef *hcdc = &((struct composite_CDC_HID_Handle*) pdev->pClassData)->cdc;
 
   if (pdev->dev_speed == USBD_SPEED_HIGH)
   {

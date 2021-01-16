@@ -19,10 +19,11 @@
   */
 /* USER CODE END Header */
 
-/* Includes ------------------------------------------------------------------*/
-#include "usbd_custom_hid_if.h"
 
 /* USER CODE BEGIN INCLUDE */
+/* Includes ------------------------------------------------------------------*/
+#include "usbd_custom_hid_if.h"
+#include "composite_internal.h"
 
 /* USER CODE END INCLUDE */
 
