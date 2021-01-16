@@ -40,13 +40,19 @@ __ALIGN_BEGIN static uint8_t COMPOSITE_CDC_HID_DeviceQualifierDesc[USB_LEN_DEV_Q
 };
 
 
-
-
+#if 1
+#define CUSTOM_HID_EPIN_ADDR                         0x83U
+#define CUSTOM_HID_EPOUT_ADDR                        0x03U
+#define CDC_IN_EP                                   0x81U  /* EP1 for data IN */
+#define CDC_OUT_EP                                  0x01U  /* EP1 for data OUT */
+#define CDC_CMD_EP                                  0x82U  /* EP2 for CDC commands */
+#else
 #define CUSTOM_HID_EPIN_ADDR                         0x81U
 #define CUSTOM_HID_EPOUT_ADDR                        0x01U
 #define CDC_IN_EP                                   0x82U  /* EP1 for data IN */
 #define CDC_OUT_EP                                  0x02U  /* EP1 for data OUT */
 #define CDC_CMD_EP                                  0x83U  /* EP2 for CDC commands */
+#endif
 
 #define CUSTOM_HID_EPIN_SIZE                         64
 

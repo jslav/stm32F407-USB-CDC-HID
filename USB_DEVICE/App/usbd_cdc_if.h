@@ -34,9 +34,11 @@
 
 /* USER CODE BEGIN INCLUDE */
 
+#if 0
  #define CDC_IN_EP                                   0x82U  /* EP1 for data IN */
  #define CDC_OUT_EP                                  0x02U  /* EP1 for data OUT */
  #define CDC_CMD_EP                                  0x83U  /* EP2 for CDC commands */
+#endif
 
  #ifndef CDC_HS_BINTERVAL
  #define CDC_HS_BINTERVAL                            0x10U
