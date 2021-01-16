@@ -77,6 +77,7 @@
 
 /** USB Device initialization function. */
 void MX_USB_DEVICE_Init(void);
+uint8_t USBD_DEVICE_Send_HID_Report(uint8_t *report, uint16_t len);
 
 /*
  * -- Insert functions declaration here --

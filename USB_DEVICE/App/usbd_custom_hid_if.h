@@ -92,15 +92,6 @@
    CUSTOM_HID_BUSY,
  } CUSTOM_HID_StateTypeDef;
 
- typedef struct _USBD_CUSTOM_HID_Itf
- {
-   uint8_t *pReport;
-   int8_t (* Init)(void);
-   int8_t (* DeInit)(void);
-   int8_t (* OutEvent)(uint8_t event_idx, uint8_t state);
-
- } USBD_CUSTOM_HID_ItfTypeDef;
-
  typedef struct
  {
    uint8_t  Report_buf[USBD_CUSTOMHID_OUTREPORT_BUF_SIZE];
@@ -137,12 +128,15 @@
  /** @defgroup USB_CORE_Exported_Functions
    * @{
    */
- uint8_t USBD_CUSTOM_HID_SendReport(USBD_HandleTypeDef *pdev,
-                                    uint8_t *report, uint16_t len);
-
+ uint8_t USBD_CUSTOM_HID_SendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t len);
  uint8_t USBD_CUSTOM_HID_ReceivePacket(USBD_HandleTypeDef *pdev);
 
-//#include "usbd_customhid.h"
+ uint8_t USBD_CUSTOM_HID_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx);
+ uint8_t USBD_CUSTOM_HID_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx);
+ uint8_t USBD_CUSTOM_HID_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
+ uint8_t USBD_CUSTOM_HID_EP0_RxReady(USBD_HandleTypeDef *pdev);
+ uint8_t USBD_CUSTOM_HID_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum);
+ uint8_t USBD_CUSTOM_HID_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum);
 
 /* USER CODE BEGIN INCLUDE */
 
@@ -201,9 +195,6 @@
   * @brief Public variables.
   * @{
   */
-
-/** CUSTOMHID Interface callback. */
-extern USBD_CUSTOM_HID_ItfTypeDef USBD_CustomHID_fops_FS;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
 extern USBD_HandleTypeDef hUsbDeviceFS;

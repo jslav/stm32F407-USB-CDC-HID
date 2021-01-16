@@ -48,6 +48,7 @@ I2S_HandleTypeDef hi2s3;
 SPI_HandleTypeDef hspi1;
 
 /* USER CODE BEGIN PV */
+uint8_t dataToSend[5];
 
 /* USER CODE END PV */
 
@@ -99,6 +100,10 @@ int main(void)
   MX_SPI1_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
+  dataToSend[0] = 'H';
+  dataToSend[1] = 'I';
+  dataToSend[2] = 'D';
+  dataToSend[3] = 0;
 
   /* USER CODE END 2 */
 
@@ -107,6 +112,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+	  USBD_DEVICE_Send_HID_Report(&dataToSend[0], 4);
 
     /* USER CODE BEGIN 3 */
   }

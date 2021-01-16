@@ -192,7 +192,7 @@ __ALIGN_BEGIN static uint8_t COMPOSITE_CDC_HID_CfgFSDesc[USB_COMPOSITE_CONFIG_DE
 };
 
 // ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
-
+// ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
 static uint8_t COMPOSITE_CDC_HID_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 {
@@ -206,17 +206,14 @@ static uint8_t COMPOSITE_CDC_HID_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 	}
 
 	pdev->pClassData = (void *)pCtxt;
-	return USBD_CDC_Init(pdev,cfgidx);
-
-//	USBD_CDC_Init(pdev,cfgidx);
-//	USBD_CUSTOM_HID_Init(pdev,cfgidx);
-//	return USBD_OK;
-
+	USBD_CDC_Init(pdev,cfgidx);
+	USBD_CUSTOM_HID_Init(pdev,cfgidx);
+	return USBD_OK;
 }
 
 static uint8_t COMPOSITE_CDC_HID_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 {
-//	USBD_CUSTOM_HID_DeInit(pdev,cfgidx);
+	USBD_CUSTOM_HID_DeInit(pdev,cfgidx);
 	USBD_CDC_DeInit(pdev,cfgidx);
 	USBD_free(pdev->pClassData);
     pdev->pClassData = NULL;
@@ -225,24 +222,41 @@ static uint8_t COMPOSITE_CDC_HID_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx
 
 static uint8_t COMPOSITE_CDC_HID_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
 {
-	return USBD_CDC_Setup(pdev, req);
+	if (req->wIndex == HID_INTERFACE_IDX)
+		return (USBD_CUSTOM_HID_Setup (pdev, req));
+	else
+		return (USBD_CDC_Setup(pdev, req));
 }
 
 static uint8_t COMPOSITE_CDC_HID_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-	return USBD_CDC_DataIn(pdev, epnum);
+	/*DataIN can be for CDC or HID */
+	if (epnum == (CUSTOM_HID_EPIN_ADDR&~0x80))
+		return (USBD_CUSTOM_HID_DataIn(pdev, epnum));
+	else
+		return (USBD_CDC_DataIn(pdev, epnum));
+//	return USBD_CDC_DataIn(pdev, epnum);
 }
 
 
 static uint8_t COMPOSITE_CDC_HID_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-	return USBD_CDC_DataOut(pdev, epnum);
+	/*DataOUT can be for CDC or HID */
+	if (epnum == (CUSTOM_HID_EPOUT_ADDR&~0x80))
+		return (USBD_CUSTOM_HID_DataOut(pdev, epnum));
+	else
+		return (USBD_CDC_DataOut(pdev, epnum));
+//	return USBD_CDC_DataOut(pdev, epnum);
 }
 
 
 static uint8_t COMPOSITE_CDC_HID_EP0_RxReady(USBD_HandleTypeDef *pdev)
 {
-	return USBD_CDC_EP0_RxReady(pdev);
+	USBD_CUSTOM_HID_EP0_RxReady(pdev);
+	USBD_CDC_EP0_RxReady(pdev);
+
+	return USBD_OK;
+//	return USBD_CDC_EP0_RxReady(pdev);
 }
 
 /**

@@ -55,6 +55,10 @@ USBD_HandleTypeDef hUsbDeviceFS;
  * -- Insert your external function declaration here --
  */
 /* USER CODE BEGIN 1 */
+uint8_t USBD_DEVICE_Send_HID_Report(uint8_t *report, uint16_t len)
+{
+	return USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, report, len);
+}
 
 /* USER CODE END 1 */
 
