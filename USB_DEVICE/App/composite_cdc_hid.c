@@ -41,11 +41,11 @@ __ALIGN_BEGIN static uint8_t COMPOSITE_CDC_HID_DeviceQualifierDesc[USB_LEN_DEV_Q
 
 
 #if 1
-#define CUSTOM_HID_EPIN_ADDR                         0x83U
-#define CUSTOM_HID_EPOUT_ADDR                        0x03U
-#define CDC_IN_EP                                   0x81U  /* EP1 for data IN */
-#define CDC_OUT_EP                                  0x01U  /* EP1 for data OUT */
-#define CDC_CMD_EP                                  0x82U  /* EP2 for CDC commands */
+#define CUSTOM_HID_EPIN_ADDR                         0x81U
+#define CUSTOM_HID_EPOUT_ADDR                        0x01U
+#define CDC_IN_EP                                   0x82U  /* EP1 for data IN */
+#define CDC_OUT_EP                                  0x02U  /* EP1 for data OUT */
+#define CDC_CMD_EP                                  0x83U  /* EP2 for CDC commands */
 #else
 #define CUSTOM_HID_EPIN_ADDR                         0x81U
 #define CUSTOM_HID_EPOUT_ADDR                        0x01U
@@ -127,7 +127,7 @@ __ALIGN_BEGIN static uint8_t COMPOSITE_CDC_HID_CfgFSDesc[USB_COMPOSITE_CONFIG_DE
   USB_COMPOSITE_CONFIG_DESC_SIZ,
                                                       /* wTotalLength: Bytes returned */
   0x00,
-  0x03,                                               /* bNumInterfaces: 1 interface */
+  0x03,                                             /* bNumInterfaces:  */
   0x01,                                               /* bConfigurationValue: Configuration value */
   0x00,                                               /* iConfiguration: Index of string descriptor describing the configuration */
   0xC0,                                               /* bmAttributes: bus powered */
@@ -137,7 +137,7 @@ __ALIGN_BEGIN static uint8_t COMPOSITE_CDC_HID_CfgFSDesc[USB_COMPOSITE_CONFIG_DE
   /* 09 */
   0x09,                                               /* bLength: Interface Descriptor size*/
   USB_DESC_TYPE_INTERFACE,                            /* bDescriptorType: Interface descriptor type */
-  HID_INTERFACE_IDX,                                               /* bInterfaceNumber: Number of Interface */
+  HID_INTERFACE_IDX,                                  /* bInterfaceNumber: Number of Interface */
   0x00,                                               /* bAlternateSetting: Alternate setting */
   0x02,                                               /* bNumEndpoints*/
   0x03,                                               /* bInterfaceClass: CUSTOM_HID */
@@ -182,7 +182,7 @@ __ALIGN_BEGIN static uint8_t COMPOSITE_CDC_HID_CfgFSDesc[USB_COMPOSITE_CONFIG_DE
 	0x08, /* bLength */
 	0x0B, /* bDescriptorType */
 	CDC_INTERFACE_IDX, /* bFirstInterface */
-	0x02, /* bInterfaceCount */
+	 2 , /* bInterfaceCount */
 	0x02, /* bFunctionClass */
 	0x02, /* bFunctionSubClass */
 	0x01, /* bFunctionProtocol */
