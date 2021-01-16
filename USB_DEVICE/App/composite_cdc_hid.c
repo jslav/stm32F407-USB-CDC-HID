@@ -10,6 +10,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <composite_cdc_hid.h>
+#include "usbd_cdc_if.h"
 #include "usbd_custom_hid_if.h"
 #include "usbd_ctlreq.h"
 
