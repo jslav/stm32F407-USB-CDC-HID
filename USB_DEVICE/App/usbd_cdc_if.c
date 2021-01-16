@@ -21,6 +21,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_cdc_if.h"
+#include <composite_cdc_hid.h>
 
 /* USER CODE BEGIN INCLUDE */
 

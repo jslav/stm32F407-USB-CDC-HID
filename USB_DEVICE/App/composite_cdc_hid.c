@@ -10,6 +10,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <composite_cdc_hid.h>
+#include "usbd_custom_hid_if.h"
 #include "usbd_ctlreq.h"
 
 
@@ -268,10 +269,12 @@ __ALIGN_BEGIN static uint8_t COMPOSITE_CDC_HID_CfgFSDesc[USB_COMPOSITE_CONFIG_DE
 	/* 07 bytes */
 };
 
-
-/** @defgroup USBD_CDC_Private_Functions
-  * @{
-  */
+// ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+struct composite_CDC_HID_Handle
+{
+	USBD_CDC_HandleTypeDef cdc;
+	USBD_CUSTOM_HID_HandleTypeDef chid;
+};
 
 /**
   * @brief  USBD_CDC_Init
