@@ -28,6 +28,16 @@
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
+
+ typedef struct
+ {
+   uint32_t bitrate;
+   uint8_t  format;
+   uint8_t  paritytype;
+   uint8_t  datatype;
+ } USBD_CDC_LineCodingTypeDef;
+
+
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 

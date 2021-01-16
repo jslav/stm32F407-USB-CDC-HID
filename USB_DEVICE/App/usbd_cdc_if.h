@@ -74,15 +74,6 @@
 
  typedef struct
  {
-   uint32_t bitrate;
-   uint8_t  format;
-   uint8_t  paritytype;
-   uint8_t  datatype;
- } USBD_CDC_LineCodingTypeDef;
-
-
- typedef struct
- {
    uint32_t data[CDC_DATA_HS_MAX_PACKET_SIZE / 4U];      /* Force 32bits alignment */
    uint8_t  CmdOpCode;
    uint8_t  CmdLength;
