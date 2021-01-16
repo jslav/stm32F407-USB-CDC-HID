@@ -98,6 +98,15 @@
  uint8_t USBD_CDC_ReceivePacket(USBD_HandleTypeDef *pdev);
  uint8_t USBD_CDC_TransmitPacket(USBD_HandleTypeDef *pdev);
 
+ uint8_t USBD_CDC_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx);
+ uint8_t USBD_CDC_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx);
+ uint8_t USBD_CDC_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
+ uint8_t USBD_CDC_EP0_RxReady(USBD_HandleTypeDef *pdev);
+ uint8_t USBD_CDC_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum);
+ uint8_t USBD_CDC_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum);
+
+
+
 /* USER CODE END INCLUDE */
 
 /* USER CODE BEGIN EXPORTED_DEFINES */
