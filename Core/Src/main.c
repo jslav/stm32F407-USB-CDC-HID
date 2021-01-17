@@ -103,15 +103,19 @@ int main(void)
   dataToSend[0] = 'H';
   dataToSend[1] = 'I';
   dataToSend[2] = 'D';
-  dataToSend[3] = 0;
+  dataToSend[3] = ' ';
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  int k = 0;
   while (1)
   {
     /* USER CODE END WHILE */
+	  k++;
+	  if ( k  < 5000000 ) continue;
+	  k = 0;
 	  USBD_DEVICE_Send_HID_Report(&dataToSend[0], 4);
 
     /* USER CODE BEGIN 3 */

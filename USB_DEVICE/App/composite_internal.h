@@ -6,7 +6,7 @@
 
 
 
-#if 1
+#if 0
 #define CUSTOM_HID_EPIN_ADDR                         0x83U
 #define CUSTOM_HID_EPOUT_ADDR                        0x03U
 #define CDC_IN_EP                                   0x81U  /* EP1 for data IN */
@@ -21,10 +21,8 @@
 #endif
 
 #define CUSTOM_HID_EPIN_SIZE                         64
-
 #define CUSTOM_HID_EPOUT_SIZE                        64
 
-#define USB_CUSTOM_HID_CONFIG_DESC_SIZ               41U
 #define USB_CUSTOM_HID_DESC_SIZ                      9U
 
 #ifndef CUSTOM_HID_HS_BINTERVAL
@@ -76,7 +74,6 @@
 #define CDC_DATA_FS_MAX_PACKET_SIZE                 64U  /* Endpoint IN & OUT Packet size */
 #define CDC_CMD_PACKET_SIZE                         8U  /* Control Endpoint Packet size */
 
-#define USB_CDC_CONFIG_DESC_SIZ                     67U
 #define CDC_DATA_HS_IN_PACKET_SIZE                  CDC_DATA_HS_MAX_PACKET_SIZE
 #define CDC_DATA_HS_OUT_PACKET_SIZE                 CDC_DATA_HS_MAX_PACKET_SIZE
 
